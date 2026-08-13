@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Nothing here yet</h1>
+<div class="card">
+  <p>No {{ what }} in the database.</p>
+  <p class="muted">Pull it with:</p>
+  <pre>{{ how }}</pre>
+  <p class="muted">If that fails, run <code>python scripts/preflight.py</code> to see which
+  prerequisite is missing.</p>
+</div>
+{% endblock %}

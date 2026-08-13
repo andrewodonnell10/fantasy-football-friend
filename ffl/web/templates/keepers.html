@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Keeper board — {{ target_season }}</h1>
+<p class="sub">
+  Eligibility computed from the {{ source_season }} draft and transaction log.
+  Each team may keep up to {{ max_keepers }}, at a Keeper Draft Value one round
+  earlier than where the player was drafted.
+</p>
+
+{% for team in teams %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0">{{ team.team_name }}</h2>
+    <div>
+      {% if team.selected %}
+        <span class="pill ok">{{ team.selected|length }} selected</span>
+      {% endif %}
+      <span class="pill {{ 'ok' if team.eligible else 'warn' }}">
+        {{ team.eligible|length }} eligible
+      </span>
+      <a class="btn" style="margin-left:8px"
+         href="{{ url_for('team_keepers', team_key=team.team_key) }}">Choose keepers</a>
+    </div>
+  </div>
+
+  {% if team.selected %}
+  <p class="muted" style="margin:10px 0 0">
+    Declared:
+    {% for s in team.selected %}
+      <strong>{{ s['player_name'] }}</strong> (R{{ s['kdv_round'] }}){{ ", " if not loop.last }}
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  <div class="scroll" style="margin-top:12px"><table>
+    <tr>
+      <th>Player</th><th>Pos</th><th>Drafted</th><th>KDV</th><th>Status</th>
+    </tr>
+    {% for e in team.eligible %}
+    <tr>
+      <td><a href="{{ url_for('player_detail', player_key=e.player_key) }}">{{ e.player_name }}</a></td>
+      <td class="muted">{{ e.position or '—' }}</td>
+      <td>Round {{ e.draft_round }}</td>
+      <td><strong>Round {{ e.kdv_round }}</strong></td>
+      <td>
+        <span class="pill ok">Eligible</span>
+        {% if e.costs_first_rounder %}
+          <span class="pill warn" title="{{ e.cautions|join(' ') }}">costs your 1st</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    {% for e in team.ineligible %}
+    <tr class="ineligible">
+      <td><a href="{{ url_for('player_detail', player_key=e.player_key) }}">{{ e.player_name }}</a></td>
+      <td class="muted">{{ e.position or '—' }}</td>
+      <td>Round {{ e.draft_round }}</td>
+      <td class="muted">—</td>
+      <td class="reason">{{ e.reasons|join('; ') }}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+</div>
+{% endfor %}
+{% endblock %}

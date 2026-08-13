@@ -1,0 +1,126 @@
+# League rules encoded from docs/League_Rules_And_Settings.md
+#
+# That markdown file is the human source of truth. THIS file is the source of
+# truth for code. If they ever disagree, the markdown wins — fix this file.
+#
+# `scripts/fetch_league.py --check-settings` compares this against what Yahoo
+# actually has configured and reports drift in both directions.
+
+league:
+  name: "Fantasy Football Friend"
+  teams: 12          # verified against Yahoo at sync time
+  ppr: 1.0
+
+# ---------------------------------------------------------------------------
+# Keeper rules
+# ---------------------------------------------------------------------------
+keepers:
+  max_per_team: 2
+
+  # KDV = the round ahead of where the player was drafted.
+  # Drafted in round 7 -> kept as a round 6 pick.
+  kdv_round_delta: -1
+
+  # Players drafted in these rounds can never be kept.
+  excluded_draft_rounds: [1]
+
+  # Keepers must be declared to the commissioner this many days before the draft.
+  declaration_deadline_days_before_draft: 7
+
+  # A player must have been drafted by the team that wants to keep them.
+  # "at minimum, that you originally drafted them"
+  must_be_drafted_by_keeping_team: true
+
+  # Any of these events during the season permanently void keeper eligibility.
+  voiding_events:
+    dropped: true          # "Dropping a player at any point makes them NOT Keeper Eligible"
+    waiver_or_fa_add: true # "Players picked up from the waiver wire in season are NOT Keeper Eligible"
+    traded: true           # "Trading a player makes them NOT Keeper Eligible for the new team manager"
+
+  # A player may be kept on the same team at most twice, consecutively.
+  # The second keep is priced at the player's PRIOR SEASON Yahoo ADP instead of
+  # round-minus-one. If that ADP falls in round 1, they are not eligible.
+  #
+  # DORMANT FOR 2026: this is the league's first keeper year, so nobody has been
+  # kept before and no second keep is possible. The machinery is recorded in the
+  # `keeper_selections` table now because Yahoo does not flag who was a keeper —
+  # a kept player looks like an ordinary pick in their KDV round. Without our own
+  # record, this rule becomes uncomputable in 2027.
+  max_consecutive_keeps: 2
+  second_keep_uses_prior_adp: true
+  second_keep_adp_round_1_ineligible: true
+
+# ---------------------------------------------------------------------------
+# Roster structure
+# ---------------------------------------------------------------------------
+roster:
+  starters:
+    QB: 1
+    RB: 2
+    WR: 2
+    TE: 1
+    W/R/T: 1     # flex: WR, RB, or TE
+    K: 1
+    DEF: 1
+  bench: 4
+  ir: 1
+  flex_eligible: [WR, RB, TE]
+
+settings:
+  fractional_points: true
+  negative_points: true
+  lock_benched_players: false
+  publicly_viewable: false
+  invite_permissions: commissioner_only
+
+# ---------------------------------------------------------------------------
+# Scoring
+#
+# Values are points-per-unit. Where the league doc states "N yards per point",
+# the multiplier below is 1/N — the comment preserves the original phrasing so
+# this stays checkable against the source document.
+# ---------------------------------------------------------------------------
+scoring:
+  offense:
+    passing_yards: 0.04            # 25 yards per point
+    passing_tds: 4
+    interceptions: -1
+    sacks: -1                      # sacks TAKEN by the QB, a negative
+    rushing_yards: 0.1             # 10 yards per point
+    rushing_tds: 6
+    receptions: 1                  # full PPR
+    receiving_yards: 0.1           # 10 yards per point
+    receiving_tds: 6
+    return_tds: 6
+    two_point_conversions: 2
+    fumbles_lost: -2
+    offensive_fumble_return_td: 6
+
+  kicking:
+    pat_made: 1
+    # Field goals score by distance bucket. Inclusive bounds; `null` max = no upper limit.
+    field_goals:
+      - {min: 0,  max: 19,   points: 2}
+      - {min: 20, max: 29,   points: 3}
+      - {min: 30, max: 39,   points: 3}
+      - {min: 40, max: 49,   points: 3}
+      - {min: 50, max: null, points: 4}
+
+  defense:
+    sacks: 1
+    interceptions: 2
+    fumble_recoveries: 2
+    touchdowns: 6
+    safeties: 2
+    blocked_kicks: 2
+    return_tds: 6                  # kickoff and punt return TDs
+    extra_point_returned: 2
+    # Points allowed scores by bucket. Inclusive bounds; `null` max = no upper limit.
+    points_allowed:
+      - {min: 0,  max: 0,    points: 10}
+      - {min: 1,  max: 6,    points: 7}
+      - {min: 7,  max: 13,   points: 4}
+      - {min: 14, max: 20,   points: 1}
+      - {min: 21, max: 27,   points: 0}
+      - {min: 28, max: 34,   points: -1}
+      - {min: 35, max: null, points: -4}

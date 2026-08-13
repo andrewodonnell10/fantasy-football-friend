@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ player['name'] or player['player_key'] }}</h1>
+<p class="sub">{{ player['position'] or '' }} {{ player['nfl_team'] or '' }}</p>
+
+<div class="card">
+  <h2>Keeper verdict</h2>
+  {% if verdict %}
+    {% if verdict.eligible %}
+      <p><span class="pill ok">Eligible</span></p>
+      <p>Drafted in round {{ verdict.draft_round }} (pick {{ verdict.draft_pick }}) by
+        {{ verdict.team_name }} — keepable at <strong>round {{ verdict.kdv_round }}</strong>.</p>
+    {% else %}
+      <p><span class="pill bad">Not eligible</span></p>
+      <ul>{% for r in verdict.reasons %}<li class="reason">{{ r }}</li>{% endfor %}</ul>
+    {% endif %}
+  {% else %}
+    <p class="muted">Not drafted in this league, so never keeper-eligible —
+    you must have originally drafted a player to keep them.</p>
+  {% endif %}
+</div>
+
+{% if pick %}
+<div class="card">
+  <h2>Draft</h2>
+  <p>Round {{ pick['round'] }}, pick {{ pick['pick'] }} — {{ pick['team_name'] or '—' }}</p>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Transaction timeline</h2>
+  {% if timeline %}
+  <div class="scroll"><table>
+    <tr><th>Date</th><th>Transaction</th><th>Move</th><th>From</th><th>To</th></tr>
+    {% for t in timeline %}
+    <tr>
+      <td class="muted">{{ t['timestamp']|ts }}</td>
+      <td>{{ t['txn_type'] }}</td>
+      <td>{% if t['move'] == 'drop' %}<span class="pill bad">drop</span>
+          {% else %}<span class="pill warn">{{ t['move'] }}</span>{% endif %}</td>
+      <td class="muted">{{ t['source_type'] or '—' }}</td>
+      <td class="muted">{{ t['destination_type'] or '—' }}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+  {% else %}
+  <p class="muted">Never involved in a transaction — drafted and held all season.</p>
+  {% endif %}
+</div>
+{% endblock %}
