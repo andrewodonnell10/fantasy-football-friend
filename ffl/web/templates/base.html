@@ -4,46 +4,98 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}Fantasy Football Friend{% endblock %}</title>
+<script>
+(function() {
+  var stored = localStorage.getItem('theme');
+  var theme = stored || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1419; --panel: #171d24; --panel-2: #1e252e; --line: #2a333d;
-    --text: #e6edf3; --muted: #8b98a5; --accent: #4a9eff;
-    --ok: #3fb950; --warn: #d29922; --bad: #f85149;
+    /* Turf & Chalk (light) */
+    --bg: #eef3e6; --bg-stripe: #e6efdd; --panel: #fdfcf8; --panel-2: #e7f0e0; --line: #c3d4b7;
+    --text: #1c2b1e; --muted: #5c6f57; --accent: #8a5a2b; --accent-2: #6e4520;
+    --ok: #2f8f3e; --warn: #b8860b; --bad: #c0392b;
+    --font-heading: 'Bebas Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+    --heading-tracking: .04em;
+    --font-mono: 'Space Mono', ui-monospace, "SFMono-Regular", Menlo, monospace;
   }
-  @media (prefers-color-scheme: light) {
-    :root {
-      --bg: #f6f8fa; --panel: #fff; --panel-2: #f0f3f6; --line: #d8dee4;
-      --text: #1f2328; --muted: #636c76; --accent: #0969da;
-      --ok: #1a7f37; --warn: #9a6700; --bad: #cf222e;
+  [data-theme="dark"] {
+    /* Coach's Playbook (dark) */
+    --bg: #2b2118; --bg-stripe: #322619; --panel: #33281c; --panel-2: #3d2f20; --line: #e8c39e;
+    --text: #f0e6d2; --muted: #b8a888; --accent: #4f9c56; --accent-2: #3c7a42;
+    --ok: #5a9c5f; --warn: #d4a017; --bad: #c65f42;
+    --font-heading: 'Permanent Marker', cursive;
+    --heading-tracking: normal;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --bg: #2b2118; --bg-stripe: #322619; --panel: #33281c; --panel-2: #3d2f20; --line: #e8c39e;
+      --text: #f0e6d2; --muted: #b8a888; --accent: #4f9c56; --accent-2: #3c7a42;
+      --ok: #5a9c5f; --warn: #d4a017; --bad: #c65f42;
+      --font-heading: 'Permanent Marker', cursive;
+      --heading-tracking: normal;
     }
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--text);
+    background-image: repeating-linear-gradient(135deg,
+      var(--bg) 0px, var(--bg) 40px, var(--bg-stripe) 40px, var(--bg-stripe) 80px);
     font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    transition: background-color .2s ease, color .2s ease;
   }
   header {
-    background: var(--panel); border-bottom: 1px solid var(--line);
+    background: var(--panel); border-bottom: 2px dashed var(--line);
     padding: 0 24px; position: sticky; top: 0; z-index: 10;
   }
   nav { display: flex; gap: 4px; align-items: center; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
-  nav .brand { font-weight: 700; margin-right: 20px; padding: 14px 0; white-space: nowrap; }
+  nav .brand {
+    font-family: var(--font-heading); letter-spacing: var(--heading-tracking);
+    font-size: 20px; margin-right: 20px; padding: 14px 0; white-space: nowrap;
+  }
   nav a { color: var(--muted); text-decoration: none; padding: 14px 12px; font-size: 14px; }
   nav a:hover { color: var(--text); }
   nav a.active { color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+  .theme-toggle {
+    margin-left: auto; background: var(--panel-2); border: 1px dashed var(--line);
+    border-radius: 20px; width: 36px; height: 36px; padding: 0; font-size: 16px;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .theme-toggle:hover { filter: brightness(1.1); }
+  .theme-toggle .sun { display: none; }
+  .theme-toggle .moon { display: inline; }
+  [data-theme="dark"] .theme-toggle .sun { display: inline; }
+  [data-theme="dark"] .theme-toggle .moon { display: none; }
   main { max-width: 1200px; margin: 0 auto; padding: 24px; }
-  h1 { font-size: 22px; margin: 0 0 4px; }
-  h2 { font-size: 16px; margin: 0 0 12px; }
+  h1 { font-family: var(--font-heading); letter-spacing: var(--heading-tracking); font-size: 28px; margin: 0 0 4px; }
+  h2 {
+    font-family: var(--font-heading); letter-spacing: var(--heading-tracking); font-size: 19px;
+    margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px dashed var(--line);
+  }
   .sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
   .card {
+    position: relative; overflow: hidden;
     background: var(--panel); border: 1px solid var(--line);
     border-radius: 8px; padding: 18px; margin-bottom: 16px;
   }
+  .card::after {
+    content: ""; position: absolute; right: -8px; bottom: -8px; width: 84px; height: 84px;
+    background: var(--line); opacity: .16; pointer-events: none;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='72' cy='30' r='16' fill='none' stroke='black' stroke-width='7'/%3E%3Cline x1='14' y1='58' x2='44' y2='88' stroke='black' stroke-width='7'/%3E%3Cline x1='44' y1='58' x2='14' y2='88' stroke='black' stroke-width='7'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='72' cy='30' r='16' fill='none' stroke='black' stroke-width='7'/%3E%3Cline x1='14' y1='58' x2='44' y2='88' stroke='black' stroke-width='7'/%3E%3Cline x1='44' y1='58' x2='14' y2='88' stroke='black' stroke-width='7'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  }
   .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px dashed var(--line); font-family: var(--font-mono); }
+  th { color: var(--muted); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
   tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: var(--panel-2); }
   .scroll { overflow-x: auto; }
   a { color: var(--accent); }
   .pill {
@@ -54,14 +106,15 @@
   .pill.bad  { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
   .pill.warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
   .muted { color: var(--muted); }
-  .big { font-size: 30px; font-weight: 700; line-height: 1.1; }
+  .big { font-family: var(--font-mono); font-size: 30px; font-weight: 700; line-height: 1.1; }
   .reason { color: var(--bad); font-size: 13px; }
   .ineligible td { opacity: .58; }
   .flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
   .flash.success { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); }
   .flash.error   { background: color-mix(in srgb, var(--bad) 15%, transparent); color: var(--bad); }
   button, .btn {
-    background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fdfcf8;
+    border: 1px dashed color-mix(in srgb, var(--accent-2) 60%, black); border-radius: 6px;
     padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
     text-decoration: none; display: inline-block;
   }
@@ -70,8 +123,8 @@
     width: 100%; background: var(--panel-2); border: 1px solid var(--line);
     border-radius: 6px; padding: 8px 10px; color: var(--text); font: inherit;
   }
-  code { background: var(--panel-2); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
-  pre { background: var(--panel-2); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  code { background: var(--panel-2); padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: var(--font-mono); }
+  pre { background: var(--panel-2); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; font-family: var(--font-mono); }
 </style>
 </head>
 <body>
@@ -84,6 +137,9 @@
     <a href="{{ url_for('draft') }}" class="{{ 'active' if p.startswith('/draft') }}">Draft</a>
     <a href="{{ url_for('transactions') }}" class="{{ 'active' if p.startswith('/transactions') }}">Transactions</a>
     <a href="{{ url_for('standings') }}" class="{{ 'active' if p.startswith('/standings') }}">Standings</a>
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle day/night theme" title="Toggle day/night theme">
+      <span class="sun">☀️</span><span class="moon">🌙</span>
+    </button>
   </nav>
 </header>
 <main>
@@ -94,5 +150,13 @@
   {% endwith %}
   {% block content %}{% endblock %}
 </main>
+<script>
+document.getElementById('themeToggle').addEventListener('click', function() {
+  var root = document.documentElement;
+  var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+});
+</script>
 </body>
 </html>
