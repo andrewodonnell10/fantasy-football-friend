@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Fantasy Football Friend{% endblock %}</title>
+<style>
+  :root {
+    --bg: #0f1419; --panel: #171d24; --panel-2: #1e252e; --line: #2a333d;
+    --text: #e6edf3; --muted: #8b98a5; --accent: #4a9eff;
+    --ok: #3fb950; --warn: #d29922; --bad: #f85149;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f8fa; --panel: #fff; --panel-2: #f0f3f6; --line: #d8dee4;
+      --text: #1f2328; --muted: #636c76; --accent: #0969da;
+      --ok: #1a7f37; --warn: #9a6700; --bad: #cf222e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  header {
+    background: var(--panel); border-bottom: 1px solid var(--line);
+    padding: 0 24px; position: sticky; top: 0; z-index: 10;
+  }
+  nav { display: flex; gap: 4px; align-items: center; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; }
+  nav .brand { font-weight: 700; margin-right: 20px; padding: 14px 0; white-space: nowrap; }
+  nav a { color: var(--muted); text-decoration: none; padding: 14px 12px; font-size: 14px; }
+  nav a:hover { color: var(--text); }
+  nav a.active { color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 18px; margin-bottom: 16px;
+  }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  tr:last-child td { border-bottom: none; }
+  .scroll { overflow-x: auto; }
+  a { color: var(--accent); }
+  .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  .pill.ok   { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+  .pill.bad  { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
+  .pill.warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+  .muted { color: var(--muted); }
+  .big { font-size: 30px; font-weight: 700; line-height: 1.1; }
+  .reason { color: var(--bad); font-size: 13px; }
+  .ineligible td { opacity: .58; }
+  .flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
+  .flash.success { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); }
+  .flash.error   { background: color-mix(in srgb, var(--bad) 15%, transparent); color: var(--bad); }
+  button, .btn {
+    background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+    text-decoration: none; display: inline-block;
+  }
+  button:hover, .btn:hover { filter: brightness(1.1); }
+  input[type=text], textarea {
+    width: 100%; background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 8px 10px; color: var(--text); font: inherit;
+  }
+  code { background: var(--panel-2); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  pre { background: var(--panel-2); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <span class="brand">🏈 Fantasy Football Friend</span>
+    {% set p = request.path %}
+    <a href="{{ url_for('index') }}" class="{{ 'active' if p == '/' }}">Dashboard</a>
+    <a href="{{ url_for('keeper_board') }}" class="{{ 'active' if p.startswith('/keepers') }}">Keepers</a>
+    <a href="{{ url_for('draft') }}" class="{{ 'active' if p.startswith('/draft') }}">Draft</a>
+    <a href="{{ url_for('transactions') }}" class="{{ 'active' if p.startswith('/transactions') }}">Transactions</a>
+    <a href="{{ url_for('standings') }}" class="{{ 'active' if p.startswith('/standings') }}">Standings</a>
+  </nav>
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

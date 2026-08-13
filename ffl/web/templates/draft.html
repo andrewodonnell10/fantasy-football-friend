@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ season }} draft</h1>
+<p class="sub">{{ picks|length }} picks. Round determines next season's Keeper Draft Value.</p>
+<div class="card"><div class="scroll"><table>
+  <tr><th>Pick</th><th>Round</th><th>Player</th><th>Pos</th><th>NFL</th><th>Drafted by</th></tr>
+  {% for p in picks %}
+  <tr>
+    <td class="muted">{{ p['pick'] }}</td>
+    <td>{{ p['round'] }}</td>
+    <td><a href="{{ url_for('player_detail', player_key=p['player_key']) }}">{{ p['player_name'] or p['player_key'] }}</a></td>
+    <td class="muted">{{ p['position'] or '—' }}</td>
+    <td class="muted">{{ p['nfl_team'] or '—' }}</td>
+    <td>{{ p['team_name'] or '—' }}</td>
+  </tr>
+  {% endfor %}
+</table></div></div>
+{% endblock %}

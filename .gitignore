@@ -1,0 +1,35 @@
+# Secrets — never commit these
+.env
+.env.local
+*.token
+*.pem
+.yahoofantasy
+.yahoofantasy*
+
+# Local database
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+data/*.db
+
+# Data caches (re-downloadable from source)
+.cache/
+nflverse_cache/
+
+# Python
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

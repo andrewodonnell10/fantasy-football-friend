@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ season }} transactions</h1>
+<p class="sub">Drops, waiver pickups, and trades all void keeper eligibility.</p>
+<div class="card">
+  <p style="margin:0 0 12px">
+    <a href="{{ url_for('transactions') }}" class="{{ 'muted' if kind }}">All</a> ·
+    <a href="{{ url_for('transactions', type='add') }}" class="{{ 'muted' if kind != 'add' }}">Adds</a> ·
+    <a href="{{ url_for('transactions', type='drop') }}" class="{{ 'muted' if kind != 'drop' }}">Drops</a> ·
+    <a href="{{ url_for('transactions', type='add/drop') }}" class="{{ 'muted' if kind != 'add/drop' }}">Add/Drop</a> ·
+    <a href="{{ url_for('transactions', type='trade') }}" class="{{ 'muted' if kind != 'trade' }}">Trades</a>
+  </p>
+  <div class="scroll"><table>
+    <tr><th>Date</th><th>Type</th><th>Player</th><th>Move</th><th>From</th><th>To</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td class="muted">{{ r['timestamp']|ts }}</td>
+      <td>{{ r['type'] }}</td>
+      <td><a href="{{ url_for('player_detail', player_key=r['player_key']) }}">{{ r['player_name'] or r['player_key'] }}</a></td>
+      <td>
+        {% if r['move'] == 'drop' %}<span class="pill bad">drop</span>
+        {% else %}<span class="pill warn">{{ r['move'] }}</span>{% endif %}
+      </td>
+      <td class="muted">{{ r['source_type'] or '—' }}</td>
+      <td class="muted">{{ r['destination_type'] or '—' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="muted">No transactions match.</td></tr>
+    {% endfor %}
+  </table></div>
+</div>
+{% endblock %}

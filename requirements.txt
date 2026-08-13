@@ -1,0 +1,17 @@
+# Yahoo Fantasy Sports API
+yahoofantasy>=1.4.9
+
+# nflverse data backbone (play-by-play, snap counts, injuries, expected points,
+# cross-platform player ID crosswalk). No API key required; CC-BY 4.0.
+nflreadpy>=0.1.0
+
+# Local UI
+Flask>=3.0
+
+# Config / parsing
+python-dotenv>=1.0
+PyYAML>=6.0
+requests>=2.31
+
+# Tests
+pytest>=8.0

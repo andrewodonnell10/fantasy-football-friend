@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ team_name }}</h1>
+<p class="sub">
+  Choose up to {{ max_keepers }} keepers for {{ target_season }}.
+  <a href="{{ url_for('keeper_board') }}">← back to the board</a>
+</p>
+
+<form method="post">
+  <div class="card">
+    <h2>Eligible ({{ eligible|length }})</h2>
+    {% if eligible %}
+    <div class="scroll"><table>
+      <tr><th style="width:40px"></th><th>Player</th><th>Pos</th><th>Drafted</th><th>Keeper value</th></tr>
+      {% for e in eligible %}
+      <tr>
+        <td><input type="checkbox" name="player_key" value="{{ e.player_key }}"
+                   {% if e.player_key in selected %}checked{% endif %}></td>
+        <td><a href="{{ url_for('player_detail', player_key=e.player_key) }}">{{ e.player_name }}</a></td>
+        <td class="muted">{{ e.position or '—' }}</td>
+        <td>Round {{ e.draft_round }}</td>
+        <td>
+          <strong>Round {{ e.kdv_round }}</strong>
+          {% if e.costs_first_rounder %}
+            <span class="pill warn">costs your 1st</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% if e.cautions %}
+      <tr><td></td><td colspan="4" class="muted" style="font-size:13px;padding-top:0">
+        {{ e.cautions|join(' ') }}
+      </td></tr>
+      {% endif %}
+      {% endfor %}
+    </table></div>
+    {% else %}
+    <p class="muted">No eligible players. Every drafted player was either a first-round
+    pick or was dropped, traded, or picked up off waivers during the season.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Note for the commissioner</h2>
+    <textarea name="note" rows="2"
+      placeholder="Optional — anything to pass along with the declaration">{{ note or '' }}</textarea>
+    <p style="margin:14px 0 0"><button type="submit">Save keepers</button></p>
+  </div>
+</form>
+
+{% if ineligible %}
+<div class="card">
+  <h2>Not eligible ({{ ineligible|length }})</h2>
+  <p class="muted" style="font-size:13px">Shown with reasons so you can check the ruling
+  rather than wonder why a name is missing.</p>
+  <div class="scroll"><table>
+    <tr><th>Player</th><th>Pos</th><th>Drafted</th><th>Why not</th></tr>
+    {% for e in ineligible %}
+    <tr class="ineligible">
+      <td><a href="{{ url_for('player_detail', player_key=e.player_key) }}">{{ e.player_name }}</a></td>
+      <td class="muted">{{ e.position or '—' }}</td>
+      <td>Round {{ e.draft_round }}</td>
+      <td class="reason">{{ e.reasons|join('; ') }}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+</div>
+{% endif %}
+{% endblock %}

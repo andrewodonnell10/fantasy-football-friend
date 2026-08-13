@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ season }} standings</h1>
+<div class="card"><div class="scroll"><table>
+  <tr><th>#</th><th>Team</th><th>Manager</th><th>W-L-T</th><th>PF</th><th>PA</th></tr>
+  {% for r in rows %}
+  <tr>
+    <td>{{ r['rank'] }}</td>
+    <td>{{ r['team_name'] or r['team_key'] }}</td>
+    <td class="muted">{{ r['manager_name'] or '—' }}</td>
+    <td>{{ r['wins'] }}-{{ r['losses'] }}-{{ r['ties'] }}</td>
+    <td>{{ r['points_for'] }}</td>
+    <td class="muted">{{ r['points_against'] }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6" class="muted">No standings synced yet.</td></tr>
+  {% endfor %}
+</table></div></div>
+{% endblock %}
